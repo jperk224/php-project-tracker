@@ -1,3 +1,5 @@
 favicon.ico
 css/.DS_Store
 inc/.DS_Store
+db/project_tracker_app.db
+inc/connection.php
