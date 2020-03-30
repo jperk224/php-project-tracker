@@ -67,3 +67,30 @@ function add_project($title, $category) {
     }
     return true;   
 }
+
+// Add tasks to the DB via form post from the UI (task.php)
+// Returns false if unsuccessful adding
+function add_task($project_id, $title, $date, $time) {
+    include("connection.php");
+    try {
+        $sql = "INSERT INTO tasks
+            (project_id, title, `date`, `time`)
+            VALUES (?, ?, ?, ?)";
+        // Use a prepared statement to use customized parameters (i.e. function params)
+        // Prepared statements essentially get parsed (analyze/compile/optimize)
+        // only once and then 'cached' to be 
+        // executed quickly multiple times with the same or different parameters
+        // Also Prevents SQL injection thorugh use of SQL template
+        $results = $db->prepare($sql); // returns PDOStatement object to bind the parameters to
+        $results->bindParam(1, $project_id, PDO::PARAM_INT);
+        $results->bindParam(2, $title, PDO::PARAM_STR);
+        $results->bindParam(3, $date, PDO::PARAM_STR);
+        $results->bindParam(4, $time, PDO::PARAM_INT);
+        $results->execute();
+    }
+    catch(Exception $e) {
+        echo "Error!: " . $e->getMessage() . "<br>";
+        return false;
+    }
+    return true;   
+}
