@@ -4,6 +4,18 @@ require 'inc/functions.php';
 $pageTitle = "Task | Time Tracker";
 $page = "tasks";
 
+// Declare and initialize form field variables outside the POST logic so they are available
+// ouside the POST logic to set as the default form values (i.e. <input value="$variable">)
+// POSTing to the page will remember the values in the form if there are issues POSTing (e.g. user
+// neglects to populate a required field)
+// when the user is directed to this page in some way other than POST, setting these varianbles
+// to empty strings will clear the form fields
+
+$project_id = '';
+$title = '';
+$date = '';
+$time = '';
+
 // Filter user input and use it to add a task to the DB
 // The form to add tasks has a method of POST
 // Wrap logic to execute if this page is reached via POST request (i.e. user is adding a task)
@@ -11,8 +23,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     // add trim function to remove whitespace from beg/end of input
     $project_id = trim(filter_input(INPUT_POST, "project_id", FILTER_SANITIZE_NUMBER_INT));     // Filter the project ID
     $title = trim(filter_input(INPUT_POST, "title", FILTER_SANITIZE_STRING));                   // Filter the task title
-    $date = trim(filter_input(INPUT_POST, "category", FILTER_SANITIZE_STRING));                 // Filter the task date
-    $time = trim(filter_input(INPUT_POST, "project_id", FILTER_SANITIZE_NUMBER_INT));           // Filter the task time
+    $date = trim(filter_input(INPUT_POST, "date", FILTER_SANITIZE_STRING));                     // Filter the task date
+    $time = trim(filter_input(INPUT_POST, "time", FILTER_SANITIZE_NUMBER_INT));                 // Filter the task time
 
     // these fields are required in the UI form, make sure they aren't empty
     if(empty($project_id) || empty($title) || empty($date) || empty($time)) {
@@ -22,7 +34,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         else if(empty($title)) {
             $error_message = "Task must have a title.";
         }
-        else if(empty($date)) {
+        else if(empty($date)) {     //TODO: This appears to not be working yet
             $error_message = "Please assign a valid date.";
         }
         else {
@@ -67,24 +79,40 @@ include 'inc/header.php';
                                 display them in the dropdown for selection-->
                                 <?php
                                 foreach(pull_project_list() as $project) {
-                                    echo "<option value=\"" . $project["project_id"] . "\">" 
-                                    . $project["title"] . "</option>";
+                                    echo "<option value=\"" . $project["project_id"] . "\"";
+                                    // The HTML attribut 'selected' defaults the option to selected
+                                    // in the drop down; if the $project_id is not an empty
+                                    // string, we know a project was selected via POST
+                                    // when looping through, once you reach the project that matches
+                                    // the project_id variable, set its HTML attribute 'selected' so
+                                    // that project is rendered as selected in the form
+                                    if($project_id == $project["project_id"]) {
+                                        echo " selected";   // tacks it to the end of the attributes
+                                                            // inside the opening option tag
+                                    }
+                                    echo ">" . $project["title"] . "</option>";
                                 }
                                 ?>
                             </select>
                         </td>
                     </tr>
                     <tr>
+                        <!-- Set the field values equal to the PHP variables declared at the beginning
+                        of the script to hold form values when a POST fails; escape
+                        the output to prevent XSS -->
                         <th><label for="title">Title<span class="required">*</span></label></th>
-                        <td><input type="text" id="title" name="title" value="" /></td>
+                        <td><input type="text" id="title" name="title" 
+                            value="<?php echo htmlspecialchars($title /*default escape , default encoding (UTF-8)*/); ?>" /></td>
                     </tr>
                     <tr>
                         <th><label for="date">Date<span class="required">*</span></label></th>
-                        <td><input type="text" id="date" name="date" value="" placeholder="mm/dd/yyyy" /></td>
+                        <td><input type="text" id="date" name="date" 
+                            value="<?php echo htmlspecialchars($date /*default escape , default encoding (UTF-8)*/); ?>" placeholder="mm/dd/yyyy" /></td>
                     </tr>
                     <tr>
                         <th><label for="time">Time<span class="required">*</span></label></th>
-                        <td><input type="text" id="time" name="time" value="" /> minutes</td>
+                        <td><input type="text" id="time" name="time" 
+                            value="<?php echo htmlspecialchars($time /*default escape , default encoding (UTF-8)*/); ?>" /> minutes</td>
                     </tr>
                 </table>
                 <input class="button button--primary button--topic-php" type="submit" value="Submit" />

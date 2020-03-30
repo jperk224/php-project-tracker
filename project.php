@@ -4,6 +4,13 @@ require 'inc/functions.php';
 $pageTitle = "Project | Time Tracker";
 $page = "projects";
 
+// Declare and initialize form field variables outside the POST logic so they are available
+// ouside the POST logic to set as the default form values (i.e. <input value="$variable">)
+// POSTing to the page will remember the values in the form if there are issues POSTing
+// See task.php for more discussion around this
+$title = '';
+$category = '';
+
 // Filter user input and use it to add a project to the DB
 // The form to add projects has a method of POST
 // Wrap logic to execute if this page is reached via POST request (i.e. user is adding a project)
@@ -50,9 +57,11 @@ include 'inc/header.php';
                 <table>
                     <tr>
                         <th><label for="title">Title<span class="required">*</span></label></th>
-                        <td><input type="text" id="title" name="title" value="" /></td>
+                        <td><input type="text" id="title" name="title" 
+                            value="<?php echo htmlspecialchars($title /*default escape , default encoding (UTF-8)*/); ?>" /></td>
                     </tr>
                     <tr>
+                        <!-- TODO: Add category pull from DB, loop, and form field retention -->
                         <th><label for="category">Category<span class="required">*</span></label></th>
                         <td><select id="category" name="category">
                                 <option value="">Select One</option>
