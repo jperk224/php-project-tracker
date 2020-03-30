@@ -16,7 +16,30 @@ function pull_project_list() {
     catch(Exception $e) {   // output the error if failure
         echo "Error!: " . $e->getMessage() . "<br>";
         return array();     // return an array in lieu of false so foreach loops that
-    }                       // call this to iterate remain valid
+    }                       // call this to iterate over remain valid
+    
+}
+
+// Pull the tasks from the database
+// returns the full result set
+function pull_task_list() {
+    include("connection.php");
+    // Function has no parameters (i.e. user input), just pulling tasks from the DB
+    // no risk of SQL injection
+    // Can use PDO query method -> returns a PDOStatement object 
+    // (i.e. a result set that can be iterated over; keys are result columns) 
+    // returns false on failure
+    try {
+        $sql = "SELECT t.*, p.title as project 
+                FROM tasks t
+                JOIN projects p
+                ON t.project_id = p.project_id";
+        return $db->query($sql);
+    }
+    catch(Exception $e) {   // output the error if failure
+        echo "Error!: " . $e->getMessage() . "<br>";
+        return array();     // return an array in lieu of false so foreach loops that
+    }                       // call this to iterate over remain valid
     
 }
 

@@ -21,9 +21,16 @@ include 'inc/header.php';
             </div>
 
             <div class="form-container">
-              <ul class="items">
-              </ul>
-            </div>
+                <ul class="items">
+                    <!-- iterate over the list of tasks returned from pull_task_list()
+                    and display it in the task list UI-->
+                    <?php
+                    foreach(pull_task_list() as $task) {
+                        echo "<li>" . $task["title"] . "</li>";
+                    }
+                    ?>
+                </ul>
+            </div> <!-- end task list container -->
 
         </div>
     </div>
