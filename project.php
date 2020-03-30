@@ -4,10 +4,11 @@ require 'inc/functions.php';
 $pageTitle = "Project | Time Tracker";
 $page = "projects";
 
-// The from to add projects has a method of POST
+// Filter user input and use it to add a project to the DB
+// The form to add projects has a method of POST
 // Wrap logic to execute if this page is reached via POST request (i.e. user is adding a project)
 if($_SERVER["REQUEST_METHOD"] == "POST") {
-    // add trim funciton to remove whitespace from beg/end of input
+    // add trim function to remove whitespace from beg/end of input
     $title = trim(filter_input(INPUT_POST, "title", FILTER_SANITIZE_STRING));  // Filter the project title
     $category = trim(filter_input(INPUT_POST, "category", FILTER_SANITIZE_STRING));  // Filter the project category
 
@@ -23,7 +24,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     else {
         // Add the project to the DB
         if(add_project($title, $category)) {    // returns true if project is successfully added
-            // redirect to the project list page to see newlay added project
+            // redirect to the project list page to see newly added project
             header("location:project_list.php");
         } 
         else {
