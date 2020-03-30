@@ -91,7 +91,7 @@ include 'inc/header.php';
                                 <!-- iterate over the list of projects in the DB and
                                 display them in the dropdown for selection-->
                                 <?php
-                                foreach(pull_project_list() as $project) {
+                                foreach(get_project_list() as $project) {
                                     echo "<option value=\"" . $project["project_id"] . "\"";
                                     // The HTML attribut 'selected' defaults the option to selected
                                     // in the drop down; if the $project_id is not an empty

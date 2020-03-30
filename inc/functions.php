@@ -3,7 +3,7 @@
 
 // Pull the projects from the database
 // returns the full result set
-function pull_project_list() {
+function get_project_list() {
     include("connection.php");
     // Function has no parameters, just pulling projects from the DB
     // Can use PDO query method -> returns a PDOStatement object 
@@ -22,25 +22,30 @@ function pull_project_list() {
 
 // Pull the tasks from the database
 // returns the full result set
-function pull_task_list() {
+function get_task_list($filter = null) {   // optional filter value to build various reports
     include("connection.php");
-    // Function has no parameters (i.e. user input), just pulling tasks from the DB
-    // no risk of SQL injection
-    // Can use PDO query method -> returns a PDOStatement object 
-    // (i.e. a result set that can be iterated over; keys are result columns) 
-    // returns false on failure
-    try {
+        try {
         $sql = "SELECT t.*, p.title as project 
                 FROM tasks t
                 JOIN projects p
                 ON t.project_id = p.project_id";
-        return $db->query($sql);
+
+        $orderBy = " ORDER BY date DESC"; // append to $sql for sorting; default is to order by most recent tasks
+        
+        if($filter) {
+            // filter exists, default order by project, then date; TODO: Add more features here?
+            $orderBy = " ORDER BY p.title ASC, date DESC";
+        }
+
+        $results = $db->prepare($sql . $orderBy);  // prepare prevents injection, filters user data
+        $results->execute();
     }
     catch(Exception $e) {   // output the error if failure
         echo "Error!: " . $e->getMessage() . "<br>";
         return array();     // return an array in lieu of false so foreach loops that
     }                       // call this to iterate over remain valid
-    
+
+    return $results->fetchAll(PDO::FETCH_ASSOC);    // return an array of the result set to iterate over in the HTML  
 }
 
 // Add projects to the DB via form post from the UI (project.php)

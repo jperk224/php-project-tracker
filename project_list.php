@@ -22,10 +22,10 @@ include 'inc/header.php';
 
             <div class="form-container">
                 <ul class="items">
-                    <!-- iterate over the list of projects returned from pull_project_list()
+                    <!-- iterate over the list of projects returned from get_project_list()
                     and display it in the project list UI-->
                     <?php
-                    foreach(pull_project_list() as $project) {
+                    foreach(get_project_list() as $project) {
                         echo "<li>" . $project["title"] . "</li>";
                     }
                     ?>
