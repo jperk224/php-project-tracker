@@ -14,15 +14,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     // these fields are required in the UI form, make sure they aren't empty
     if(empty($title) || empty($category)) {
         if(empty($title)) {
-            $error_message = "Project must have a title";   // TODO: Make this required to be unique
+            $error_message = "Project must have a title.";   // TODO: Make this required to be unique
         }
         else if(empty($cateogry)) {
-            $error_message = "Project must have an associated category";
+            $error_message = "Project must have an associated category.";
         }
     }
     else {
-        echo "title = $title<br>";          // TODO: this is a test, remove this
-        echo "category = $category<br>";
+        // Add the project to the DB
+        if(add_project($title, $category)) {    // returns true if project is successfully added
+            // redirect to the project list page to see newlay added project
+            header("location:project_list.php");
+        } 
+        else {
+            $error_message = "Error adding project.";
+        }
     }
 }
 
