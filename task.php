@@ -26,6 +26,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $date = trim(filter_input(INPUT_POST, "date", FILTER_SANITIZE_STRING));                     // Filter the task date
     $time = trim(filter_input(INPUT_POST, "time", FILTER_SANITIZE_NUMBER_INT));                 // Filter the task time
 
+    // ensure the $date POSTed is in the specified format (mm/dd/yyyy)
+    $dateMatch = explode("/", $date);   // convert the value passed into an array deliminted by '/'
+                                        // result SHOULD BE a 3 element array of mm dd yyyy
+
     // these fields are required in the UI form, make sure they aren't empty
     if(empty($project_id) || empty($title) || empty($date) || empty($time)) {
         if(empty($project_id)) {
@@ -34,12 +38,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         else if(empty($title)) {
             $error_message = "Task must have a title.";
         }
-        else if(empty($date)) {     //TODO: This appears to not be working yet
+        else if(empty($date)) {     
             $error_message = "Please assign a valid date.";
         }
-        else {
+        else {  // If you've reached this by default, $time is empty  
             $error_message = "Please assign a valid time.";
         }
+    }
+    // Validate date entry
+    // TODO: If date type in DB were DATE could not just date checker be used?
+    else if((count($dateMatch) != 3)        // a valid date input should yield a 3 element array
+                || (strlen($dateMatch[0]) != 2) // check for 2-digit month
+                || (strlen($dateMatch[1]) != 2) // check for 2-digit day
+                || (strlen($dateMatch[2]) != 4) // check for 4-digit year
+                || (!checkdate($dateMatch[0], $dateMatch[1], $dateMatch[2]))) {   // check date is valid
+            $error_message = "Date entered is invalid.  Please use format MM/DD/YYYY.";
     }
     else {
         // Add the taskto the DB
