@@ -26,6 +26,7 @@ include 'inc/header.php';
             <label for="filter">Filter: </label>
             <select name="filter" id="filter">
             <option value="">Select One</option>
+            <optgroup label="Projects">
             <?php 
             // Pull the projects from the DB to display for selection in the dropdown
             $projects = get_project_list();
@@ -35,6 +36,15 @@ include 'inc/header.php';
                 echo "<option value=\"project:" . $project["project_id"] . "\">" . $project["title"] . "</option>";
             }
             ?>
+            </optgroup>
+            <optgroup label="Category">
+            <?php
+            $categories = get_project_categories();
+            foreach($categories as $category) {
+                echo "<option value=\"category:" . $category["category"] . "\">" . $category["category"] . "</option>";
+            }
+            ?>
+            </optgroup>
             </select>
             <button class="button" type="submit">Run</button>
             </form> <!-- end report filtering form -->

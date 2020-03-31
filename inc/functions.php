@@ -20,6 +20,21 @@ function get_project_list() {
     
 }
 
+// Pull the distinct categories from the database
+function get_project_categories() {
+    include("connection.php");
+    // funciton has no parameters, use query method to return a PDOStatement
+    // object that can be iterated over
+    try {
+        $sql = "SELECT DISTINCT(category) from projects";
+        return $db->query($sql);
+    }
+    catch(Exception $e) {
+        echo "Error!: " . $e->getMessage(). "<br";
+        return array();     // return an empty array for foreach loops in the UI remain valid
+    }
+}
+
 // Pull the tasks from the database
 // returns the full result set
 function get_task_list($filter = null) {   // optional filter value to build various reports
@@ -36,9 +51,14 @@ function get_task_list($filter = null) {   // optional filter value to build var
         if(is_array($filter)) { // if filter is an array, we've gotten filter value from reports.php
             // array is structured as (item, value)
             switch($filter[0]) {    // case used here to add future filter items
-                case "project":
-                default:
+                case "project": 
                     $where = " WHERE p.project_id = ?";
+                    break;
+                case "category":
+                    $where = " WHERE p.category = ?";
+                    break;
+                default:
+                    $where = '';    // no filter.  Default should never be reached
                     break;
             }
         }
@@ -53,8 +73,8 @@ function get_task_list($filter = null) {   // optional filter value to build var
 
         $results = $db->prepare($sql . $where . $orderBy);  // prepare prevents injection, filters user data
         if(is_array($filter)) { // we've received a filter value so need to include the WHERE clause to filter the result set
-            $results->bindValue(1, $filter[1], PDO::PARAM_INT);
-        }
+            $results->bindValue(1, $filter[1]);     // left off optional third argument due 
+        }                                           // to differing types in switch (e.g. int vs. string)
         $results->execute();
     }
     catch(Exception $e) {   // output the error if failure
