@@ -5,12 +5,39 @@ $page = "reports";
 $pageTitle = "Reports | Time Tracker";
 $filter = 'all';    // default filter view --> all tasks by project
 
+// If this page is reached via GET, it's likely the user submitted the form
+// with a filter value; set $filter equal to the value sent in to filter
+// the report appropriately
+// TODO: Move this to a separate script to expand/add filter funcitonality
+if(!empty($_GET["filter"])) {
+    $filter = filter_input(INPUT_GET, "filter", FILTER_SANITIZE_STRING);    // SANITIZE_STRING strips tags
+    $filter = explode(":", $filter);    // convert the string into an array of (item, value)
+}
+
+
 include 'inc/header.php';
 ?>
 <div class="col-container page-container">
     <div class="col col-70-md col-60-lg col-center">
         <div class="col-container">
             <h1 class='actions-header'>Reports</h1>
+            <!-- this is the form users will use to select report filtering options -->
+            <form class="form-container form-report" action="reports.php" method="get">
+            <label for="filter">Filter: </label>
+            <select name="filter" id="filter">
+            <option value="">Select One</option>
+            <?php 
+            // Pull the projects from the DB to display for selection in the dropdown
+            $projects = get_project_list();
+            foreach($projects as $project) {
+                // Want to know both the item we're filtering on and it's value, so option is item:value
+                // for dissecting on the backend
+                echo "<option value=\"project:" . $project["project_id"] . "\">" . $project["title"] . "</option>";
+            }
+            ?>
+            </select>
+            <button class="button" type="submit">Run</button>
+            </form> <!-- end report filtering form -->
         </div>
         <div class="section page">
             <div class="wrapper">
@@ -42,7 +69,7 @@ include 'inc/header.php';
                     $projectTotalTime += $task["time"];
                     $grandTotalTime += $task["time"];
                     echo "<tr>\n";
-                    echo "<td>" . $task["title"] . "</td>\n";   // TODO: add project name
+                    echo "<td>" . $task["title"] . "</td>\n";
                     echo "<td>" . $task["date"] . "</td>\n";
                     echo "<td>" . $task["time"] . "</td>\n";
                     echo "</tr>\n";
@@ -70,4 +97,3 @@ include 'inc/header.php';
 </div>
 
 <?php include "inc/footer.php"; ?>
-

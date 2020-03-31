@@ -30,6 +30,19 @@ function get_task_list($filter = null) {   // optional filter value to build var
                 JOIN projects p
                 ON t.project_id = p.project_id";
 
+        $where = '';    // if the filter passed in is an array from the form on reports.php,
+                        // we need a WHERE clause in the sql to filter the result set based on the 
+                        // value(s) passed in from the report filter form
+        if(is_array($filter)) { // if filter is an array, we've gotten filter value from reports.php
+            // array is structured as (item, value)
+            switch($filter[0]) {    // case used here to add future filter items
+                case "project":
+                default:
+                    $where = " WHERE p.project_id = ?";
+                    break;
+            }
+        }
+
         $orderBy = " ORDER BY date DESC"; // append to $sql for sorting; default is to order by most recent tasks
         
         if($filter) {
@@ -38,7 +51,10 @@ function get_task_list($filter = null) {   // optional filter value to build var
             $orderBy = " ORDER BY p.title ASC, date DESC";
         }
 
-        $results = $db->prepare($sql . $orderBy);  // prepare prevents injection, filters user data
+        $results = $db->prepare($sql . $where . $orderBy);  // prepare prevents injection, filters user data
+        if(is_array($filter)) { // we've received a filter value so need to include the WHERE clause to filter the result set
+            $results->bindValue(1, $filter[1], PDO::PARAM_INT);
+        }
         $results->execute();
     }
     catch(Exception $e) {   // output the error if failure
