@@ -36,7 +36,7 @@ include 'inc/header.php';
                 echo "<option value=\"project:" . $project["project_id"] . "\">" . $project["title"] . "</option>";
             }
             ?>
-            </optgroup>
+            </optgroup> <!-- end project optgroup -->
             <optgroup label="Category">
             <?php
             $categories = get_project_categories();
@@ -44,7 +44,37 @@ include 'inc/header.php';
                 echo "<option value=\"category:" . $category["category"] . "\">" . $category["category"] . "</option>";
             }
             ?>
-            </optgroup>
+            </optgroup> <!-- end category optgroup -->
+            <optgroup label="Date"> <!-- TODO: These are hardcoded- transfer them to the DB for more robustness? -->
+            <!-- This Week -->
+            <option value="date:
+            <?php
+            echo date("m/d/y", strtotime("-1 Sunday")); // Last Sunday (beginning of week)
+            echo ":";
+            echo date("m/d/Y"); // Today
+            ?>">This Week</option>
+            <!-- This Week -->
+            <option value="date:
+            <?php
+            echo date("m/d/Y", strtotime("-2 Sunday")); // 2 Sundays back (beginning of last week)
+            echo ":";
+            echo date("m/d/Y", strtotime("-1 Saturday")); // Last Saturday (end of last week)
+            ?>">Last Week</option>
+            <!-- This Month -->
+            <option value="date:
+            <?php
+            echo date("m/d/Y", strtotime("first day of this month")); 
+            echo ":";
+            echo date("m/d/Y"); 
+            ?>">This Month</option>
+            <!-- Last Month -->
+            <option value="date:
+            <?php
+            echo date("m/d/Y", strtotime("first day of last month")); 
+            echo ":";
+            echo date("m/d/Y", strtotime("last day of last month")); 
+            ?>">Last Month</option>
+            </optgroup> <!-- end category optgroup -->
             </select>
             <button class="button" type="submit">Run</button>
             </form> <!-- end report filtering form -->

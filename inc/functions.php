@@ -49,13 +49,15 @@ function get_task_list($filter = null) {   // optional filter value to build var
                         // we need a WHERE clause in the sql to filter the result set based on the 
                         // value(s) passed in from the report filter form
         if(is_array($filter)) { // if filter is an array, we've gotten filter value from reports.php
-            // array is structured as (item, value)
             switch($filter[0]) {    // case used here to add future filter items
                 case "project": 
                     $where = " WHERE p.project_id = ?";
                     break;
                 case "category":
                     $where = " WHERE p.category = ?";
+                    break;
+                case "date":
+                    $where = " WHERE date BETWEEN '?' AND '?'";
                     break;
                 default:
                     $where = '';    // no filter.  Default should never be reached
@@ -74,7 +76,12 @@ function get_task_list($filter = null) {   // optional filter value to build var
         $results = $db->prepare($sql . $where . $orderBy);  // prepare prevents injection, filters user data
         if(is_array($filter)) { // we've received a filter value so need to include the WHERE clause to filter the result set
             $results->bindValue(1, $filter[1]);     // left off optional third argument due 
-        }                                           // to differing types in switch (e.g. int vs. string)
+                                                    // to differing types in switch (e.g. int vs. string)
+            // bind second value if date filter
+            if($filter[0] == "date") {
+                $results->bindValue(2, $filter[2]);
+            }
+        }                                           
         $results->execute();
     }
     catch(Exception $e) {   // output the error if failure
@@ -82,6 +89,7 @@ function get_task_list($filter = null) {   // optional filter value to build var
         return array();     // return an array in lieu of false so foreach loops that
     }                       // call this to iterate over remain valid
 
+    // FIXME: This returns nothing if $filter[0] = "date"
     return $results->fetchAll(PDO::FETCH_ASSOC);    // return an array of the result set to iterate over in the HTML  
 }
 
