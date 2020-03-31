@@ -25,7 +25,7 @@ function get_project_list() {
 function get_task_list($filter = null) {   // optional filter value to build various reports
     include("connection.php");
         try {
-        $sql = "SELECT t.*, p.title as project 
+        $sql = "SELECT t.*, p.title AS project 
                 FROM tasks t
                 JOIN projects p
                 ON t.project_id = p.project_id";
@@ -33,7 +33,8 @@ function get_task_list($filter = null) {   // optional filter value to build var
         $orderBy = " ORDER BY date DESC"; // append to $sql for sorting; default is to order by most recent tasks
         
         if($filter) {
-            // filter exists, default order by project, then date; TODO: Add more features here?
+            // filter exists, default order by project, then date
+            // TODO: Add more features here?
             $orderBy = " ORDER BY p.title ASC, date DESC";
         }
 
