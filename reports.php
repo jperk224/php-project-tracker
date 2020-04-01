@@ -20,7 +20,42 @@ include 'inc/header.php';
 <div class="col-container page-container">
     <div class="col col-70-md col-60-lg col-center">
         <div class="col-container">
-            <h1 class='actions-header'>Reports</h1>
+        <!-- TODO:  Additional report suggestions
+        Allow users to enter their own date range.
+        Combine Project with Date Range
+        Combine Category with Date Range.
+        Sort Tasks by Date
+        Sort Tasks by Time
+        Group Tasks by Day
+        Group Tasks by Week -->
+            <!-- header dynamically displays based on filter chosen -->
+            <h1 class='actions-header'>Report on 
+            <?php
+            // if the filter is not an array, then we've received no filter selection from the
+            // user, so we display the default view -> all tasks by project
+            if(!is_array($filter)) {
+                echo "All Tasks by Project";
+            }
+            else {
+                // the filter variable is an array- we've received a filter 
+                echo ucwords($filter[0]) . " : ";
+                switch($filter[0]) {
+                    case "project":
+                        // project value comes from the dropdown, and project_id
+                        // is passed in; we need to use that project_id in get_project()
+                        // to pull from the project from the DB
+                        $project = get_project($filter[1]);
+                        echo $project["title"];
+                        break;
+                    case "category":
+                        echo $filter[1];    // show the category value passed
+                        break;
+                    case "date":
+                        echo $filter[1] . " - " . $filter[2];   // show the date range selected
+                        break;
+                }
+            }
+            ?></h1>
             <!-- this is the form users will use to select report filtering options -->
             <form class="form-container form-report" action="reports.php" method="get">
             <label for="filter">Filter: </label>
@@ -49,7 +84,7 @@ include 'inc/header.php';
             <!-- This Week -->
             <option value="date:
             <?php
-            echo date("m/d/y", strtotime("-1 Sunday")); // Last Sunday (beginning of week)
+            echo date("m/d/Y", strtotime("-1 Sunday")); // Last Sunday (beginning of week)
             echo ":";
             echo date("m/d/Y"); // Today
             ?>">This Week</option>

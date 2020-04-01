@@ -118,6 +118,21 @@ function add_project($title, $category) {
     return true;   
 }
 
+function get_project($projectId) {
+    include("connection.php");
+    try {
+        $sql = "SELECT * FROM projects WHERE project_id = ?";
+        $results = $db->prepare($sql); // returns PDOStatement object to bind the parameters to
+        $results->bindParam(1, $projectId, PDO::PARAM_INT);
+        $results->execute();
+    }
+    catch(Exception $e) {
+        echo "Error!: " . $e->getMessage() . "<br>";
+        return false;
+    }
+    return $results->fetch(PDO::FETCH_ASSOC);   
+}
+
 // Add tasks to the DB via form post from the UI (task.php)
 // Returns false if unsuccessful adding
 function add_task($project_id, $title, $date, $time) {
