@@ -11,17 +11,29 @@ $page = "tasks";
 // when the user is directed to this page in some way other than POST, setting these varianbles
 // to empty strings will clear the form fields
 
-$project_id = '';
+$projectId = '';
 $title = '';
 $date = '';
 $time = '';
+
+// If we reach this page via GET request, user has either opted to add a task
+// or clicked a link of an existing project; if the latter 'id' will be set in the query string
+if(isset($_GET["id"])) {
+    $taskId = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT); // set to task id received in GET
+    // get_task() returns an array of all the task details by the id passed in
+    $title = get_task($taskId)["title"];
+    $date = get_task($taskId)["date"];
+    $time = get_task($taskId)["time"];
+    $projectId = get_task($taskId)["project_id"];
+}
 
 // Filter user input and use it to add a task to the DB
 // The form to add tasks has a method of POST
 // Wrap logic to execute if this page is reached via POST request (i.e. user is adding a task)
 if($_SERVER["REQUEST_METHOD"] == "POST") {
     // add trim function to remove whitespace from beg/end of input
-    $project_id = trim(filter_input(INPUT_POST, "project_id", FILTER_SANITIZE_NUMBER_INT));     // Filter the project ID
+    $taskId = trim(filter_input(INPUT_POST, "id", FILTER_SANITIZE_NUMBER_INT));
+    $projectId = trim(filter_input(INPUT_POST, "project_id", FILTER_SANITIZE_NUMBER_INT));     // Filter the project ID
     $title = trim(filter_input(INPUT_POST, "title", FILTER_SANITIZE_STRING));                   // Filter the task title
     $date = trim(filter_input(INPUT_POST, "date", FILTER_SANITIZE_STRING));                     // Filter the task date
     $time = trim(filter_input(INPUT_POST, "time", FILTER_SANITIZE_NUMBER_INT));                 // Filter the task time
@@ -31,8 +43,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                                         // result SHOULD BE a 3 element array of mm dd yyyy
 
     // these fields are required in the UI form, make sure they aren't empty
-    if(empty($project_id) || empty($title) || empty($date) || empty($time)) {
-        if(empty($project_id)) {
+    if(empty($projectId) || empty($title) || empty($date) || empty($time)) {
+        if(empty($projectId)) {
             $error_message = "Task must be assigned to an existing project.";
         }
         else if(empty($title)) {
@@ -56,7 +68,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     else {
         // Add the taskto the DB
-        if(add_task($project_id, $title, $date, $time)) {    // returns true if task is successfully added
+        if(add_task($projectId, $title, $date, $time, $taskId)) {    // returns true if task is successfully added
             // redirect to the task list page to see newly added task
             header("location:task_list.php");
         } 
@@ -72,7 +84,17 @@ include 'inc/header.php';
 <div class="section page">
     <div class="col-container page-container">
         <div class="col col-70-md col-60-lg col-center">
-            <h1 class="actions-header">Add Task</h1>
+            <h1 class="actions-header">
+            <?php
+            // if taskId is not empty, we know we're updating as task, not adding new
+            if(!empty($taskId)) {
+                echo "Update Task : " . $title;
+            }
+            else {
+                echo "Add Task";
+            }
+            echo "</h1>";
+            ?>
             <!-- display error message is user does not populate all the required fields -->
             <?php
                 if(isset($error_message)) {
@@ -94,12 +116,12 @@ include 'inc/header.php';
                                 foreach(get_project_list() as $project) {
                                     echo "<option value=\"" . $project["project_id"] . "\"";
                                     // The HTML attribute 'selected' defaults the option to selected
-                                    // in the drop down; if the $project_id is not an empty
+                                    // in the drop down; if the $projectId is not an empty
                                     // string, we know a project was selected via POST
                                     // when looping through, once you reach the project that matches
                                     // the project_id variable, set its HTML attribute 'selected' so
                                     // that project is rendered as selected in the form
-                                    if($project_id == $project["project_id"]) {
+                                    if($projectId == $project["project_id"]) {
                                         echo " selected";   // tacks it to the end of the attributes
                                                             // inside the opening option tag
                                     }
@@ -128,6 +150,13 @@ include 'inc/header.php';
                             value="<?php echo htmlspecialchars($time /*default escape , default encoding (UTF-8)*/); ?>" /> minutes</td>
                     </tr>
                 </table>
+                <?php
+                // If the taskId is not empty, we've gotten to this form from a GET and we're editing
+                // an existing task.  We need to capture the taskId to pass into out update SQL
+                if(!empty($taskId)) {
+                    echo "<input type=\"hidden\" name=\"id\" value=\"" . $taskId . "\">";
+                }
+                ?>
                 <input class="button button--primary button--topic-php" type="submit" value="Submit" />
             </form>
         </div>

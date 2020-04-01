@@ -26,7 +26,8 @@ include 'inc/header.php';
                     and display it in the task list UI-->
                     <?php
                     foreach(get_task_list() as $task) {
-                        echo "<li>" . $task["title"] . "</li>";
+                        echo "<li><a href=\"task.php?id=" . $task["task_id"] . "\">" . 
+                        $task["title"] . "</a></li>";
                     }
                     ?>
                 </ul>

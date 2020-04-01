@@ -19,7 +19,6 @@ if(isset($_GET["id"])) {
     $projectId = get_project($projectId)["project_id"];
     $title = get_project($projectId)["title"];
     $category = get_project($projectId)["category"];
-    var_dump($category);
 }
 
 // Filter user input and use it to add a project to the DB

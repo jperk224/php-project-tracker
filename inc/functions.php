@@ -145,14 +145,39 @@ function get_project($projectId) {
     return $results->fetch(PDO::FETCH_ASSOC);   
 }
 
-// Add tasks to the DB via form post from the UI (task.php)
-// Returns false if unsuccessful adding
-function add_task($project_id, $title, $date, $time) {
+function get_task($taskId) {
     include("connection.php");
     try {
-        $sql = "INSERT INTO tasks
-            (project_id, title, `date`, `time`)
-            VALUES (?, ?, ?, ?)";
+        $sql = "SELECT task_id, title, `date`, `time`, project_id 
+                FROM tasks WHERE task_id = ?";
+        $results = $db->prepare($sql); // returns PDOStatement object to bind the parameters to
+        $results->bindParam(1, $taskId, PDO::PARAM_INT);
+        $results->execute();
+    }
+    catch(Exception $e) {
+        echo "Error!: " . $e->getMessage() . "<br>";
+        return false;
+    }
+    return $results->fetch(PDO::FETCH_ASSOC);   
+}
+
+// Add tasks to the DB via form post from the UI (task.php)
+// Returns false if unsuccessful adding
+function add_task($project_id, $title, $date, $time, $taskId = null) {
+    include("connection.php");
+    try {
+        // if there's a taskId, we're updating an existing project
+        if($taskId) {
+            $sql = "UPDATE tasks 
+                    SET project_id = ?, title = ?, 
+                    `date` = ?, `time` = ? 
+                    WHERE task_id = ?";
+        }
+        else {
+            $sql = "INSERT INTO tasks
+                (project_id, title, `date`, `time`)
+                VALUES (?, ?, ?, ?)";
+        }
         // Use a prepared statement to use customized parameters (i.e. function params)
         // Prepared statements essentially get parsed (analyze/compile/optimize)
         // only once and then 'cached' to be 
@@ -163,6 +188,9 @@ function add_task($project_id, $title, $date, $time) {
         $results->bindParam(2, $title, PDO::PARAM_STR);
         $results->bindParam(3, $date, PDO::PARAM_STR);
         $results->bindParam(4, $time, PDO::PARAM_INT);
+        if($taskId) {
+            $results->bindParam(5, $taskId, PDO::PARAM_INT);
+        }
         $results->execute();
     }
     catch(Exception $e) {
