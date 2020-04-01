@@ -95,12 +95,21 @@ function get_task_list($filter = null) {   // optional filter value to build var
 
 // Add projects to the DB via form post from the UI (project.php)
 // Returns false if unsuccessful adding
-function add_project($title, $category) {
+function add_project($title, $category, $projectId = null) {
     include("connection.php");
     try {
-        $sql = "INSERT INTO projects
+        // if there's a projectId, we're updating an existing project
+        if($projectId) {
+            $sql = "UPDATE projects 
+                    SET title = ?, category = ? 
+                    WHERE project_id = ?";
+        }
+        else {
+            $sql = "INSERT INTO projects
             (title, category)
             VALUES (?, ?)";
+        }
+        
         // Use a prepared statement to use customized parameters (i.e. function params)
         // Prepared statements essentially get parsed (analyze/compile/optimize)
         // only once and then 'cached' to be 
@@ -109,6 +118,9 @@ function add_project($title, $category) {
         $results = $db->prepare($sql); // returns PDOStatement object to bind the parameters to
         $results->bindParam(1, $title, PDO::PARAM_STR);
         $results->bindParam(2, $category, PDO::PARAM_STR);
+        if($projectId) {
+            $results->bindParam(3, $projectId, PDO::PARAM_INT);
+        }
         $results->execute();
     }
     catch(Exception $e) {

@@ -93,7 +93,7 @@ include 'inc/header.php';
                                 <?php
                                 foreach(get_project_list() as $project) {
                                     echo "<option value=\"" . $project["project_id"] . "\"";
-                                    // The HTML attribut 'selected' defaults the option to selected
+                                    // The HTML attribute 'selected' defaults the option to selected
                                     // in the drop down; if the $project_id is not an empty
                                     // string, we know a project was selected via POST
                                     // when looping through, once you reach the project that matches

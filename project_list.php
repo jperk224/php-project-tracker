@@ -26,7 +26,8 @@ include 'inc/header.php';
                     and display it in the project list UI-->
                     <?php
                     foreach(get_project_list() as $project) {
-                        echo "<li>" . $project["title"] . "</li>";
+                        echo "<li><a href=\"project.php?id=" . $project["project_id"] . "\">"
+                        . $project["title"] . "</a></li>";
                     }
                     ?>
                 </ul>
