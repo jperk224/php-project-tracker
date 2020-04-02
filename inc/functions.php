@@ -199,3 +199,42 @@ function add_task($project_id, $title, $date, $time, $taskId = null) {
     }
     return true;   
 }
+
+// DELETE FUNCTIONS //
+/////////////////////////////////////////////////////////////////////////////////////////////////
+function delete_task($taskId) {
+    include("connection.php");
+    try {
+        $sql = "DELETE FROM tasks WHERE task_id = ?";
+        $results = $db->prepare($sql); // returns PDOStatement object to bind the parameters to
+        $results->bindParam(1, $taskId, PDO::PARAM_INT);
+    }
+    catch(Exception $e) {
+        echo "Error!: " . $e->getMessage() . "<br>";
+        return false;
+    }
+    return true;    // Deletion was successful   
+}
+
+function delete_project($projectId) {
+    include("connection.php");
+    try {
+        $sql = "DELETE FROM projects WHERE project_id = ?
+                AND project_id NOT IN
+                (SELECT project_id FROM tasks)";    // make sure we don't delete projects with tasks
+        $results = $db->prepare($sql); // returns PDOStatement object to bind the parameters to
+        $results->bindParam(1, $projectId, PDO::PARAM_INT);
+    //     if($results->rowCount() > 0) {
+    //         return true;
+    //     }
+    //     else {
+    //         return false;
+    //     }
+    }
+    catch(Exception $e) {
+        echo "Error!: " . $e->getMessage() . "<br>";
+        return false;
+    }
+    // return true;    // Deletion was successful   
+    return $results->rowCount();
+}
